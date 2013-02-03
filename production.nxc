@@ -1,0 +1,49 @@
+
+
+int botPosX=0;
+int botPosY=0;
+int botPosT=0;
+
+int goals[][];
+
+
+task display() {
+  CircleOut(botPosX, botPosY, 3, DRAW_OPT_NORMAL+DRAW_OPT_FILL_SHAPE);
+
+
+
+
+
+ Wait(50);
+ ClearScreen();
+}
+
+
+task checkSensors() {
+
+}
+
+task drive() {
+  while() {
+  
+  }
+
+}
+
+
+task main()
+{
+  // sensor 1: bottom ultrasonic
+  SetSensorType(S1,SENSOR_TYPE_LOWSPEED_9V);
+  SetSensorMode(S1,SENSOR_MODE_RAW);
+  // sensor 2: top ultrasonic
+  SetSensorType(S2,SENSOR_TYPE_LOWSPEED_9V);
+  SetSensorMode(S2,SENSOR_MODE_RAW);
+  // sensor 3: light
+  SetSensorType(S3,SENSOR_TYPE_LIGHT_INACTIVE);
+  SetSensorMode(S3,SENSOR_MODE_RAW);
+  // sensor 4: color
+  SetSensorColorFull(S4);
+  
+  Precedes(display, checkSensors, drive);
+}
