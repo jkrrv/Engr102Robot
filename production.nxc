@@ -1,5 +1,7 @@
 
 mutex moveMutex;
+
+
 task move_square() {
  // while (true) {
     Acquire(moveMutex);
@@ -27,8 +29,9 @@ task check_sensors() {
     csr.Port = S1;
     SysColorSensorRead(csr);
     if (csr.Result == NO_ERR) {
-      NumOut(0, LCD_LINE1, csr.ColorValue);
+      NumOut(2, LCD_LINE1, csr.ColorValue);
     }
+    Wait(100);
     
     if (SENSOR_1 == 1) {
      // Acquire(moveMutex);
@@ -43,5 +46,5 @@ task main() {
   SetSensorUltrasonic(S2);          // set up ultrasonic sensor
   
   
-  Precedes(check_sensors, move_square);
+  Precedes(check_sensors);
 }
