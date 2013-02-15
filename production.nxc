@@ -4,7 +4,7 @@ const short wheelbase=267; // distance between drive wheels, in mm.
 const float thetaProportion=wheelradius/wheelbase;
 
 
-// !!!!!!!!!!!  Unless intentionally resetting motor counters, all
+// !!!!!!!!!!!  Unless intentionally resetting motor counters, use motorEX commands with flag RESET_NONE
 
 
 mutex moveMutex;
@@ -12,30 +12,67 @@ float posX = 0;
 float posY = 0;
 float posT = 0;
 
+int goalT=90;
+int speed=100;
 
-task sweepingTask() {
-OnFwdEx(OUT_C, 50, RESET_NONE);
-  while (posT!=90) {
-    if(posT<90){
-       OnFwdEx(OUT_C, 50, RESET_NONE);
-    } else {
-       OnFwdEx(OUT_C, -50, RESET_NONE);
-    }
+
+task driveTask() {
+   while (true) {
+      if (posT!=goalT) {
+          int deltaT=(goalT-posT)/2;
+          int speedL=speed-deltaT+abs(deltaT);
+          int speedR=speed+deltaT+abs(deltaT);
+          
+          if(abs(speedL)>100 || abs(speedR)>100) {
+            int maxSpeed=0;
+            if (abs(speedL)>abs(speedR)) {
+               maxSpeed=abs(speedL);
+            } else {
+               maxSpeed=abs(speedR);
+            }
+            speedL/=maxSpeed;
+            speedL*=100;
+            speedR/=maxSpeed;
+            speedR*=100;
+
+
+          }
+
+
+
+             NumOut(1, LCD_LINE2, speedL);
+             NumOut(1, LCD_LINE3, speedR);
+          
+          OnFwdEx(OUT_C, speedR, RESET_NONE);
+          OnFwdEx(OUT_B, speedL, RESET_NONE);
+        } else {
+          OnFwdEx(OUT_BC,speed,RESET_NONE);
+        }
+          
+
+
+    NumOut(1, LCD_LINE1, posT);
+    
+
     Wait(20);
+    
+    ClearScreen();
   }
-  OffEx(OUT_ABC, RESET_NONE);
 }
 
 
 task positionTask() {
   while (true) {
-    ClearScreen();
+
 
     posT=(MotorBlockTachoCount(OUT_C)-MotorBlockTachoCount(OUT_B))*thetaProportion;
     posT%=360;
-    NumOut(1, LCD_LINE1, posT);
+    posT+=360;
+    posT%=360;
 
-    Wait(100);
+
+
+    Wait(20);
   }
 }
 
@@ -46,5 +83,5 @@ task main() {
      //set up light sensor S3
      //set up color sensor S4
   
-  Precedes(sweepingTask,positionTask);
+  Precedes(driveTask,positionTask);
 }
