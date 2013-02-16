@@ -16,9 +16,13 @@ mutex moveMutex;
 float posX = 0;
 float posY = 0;
 float posT = 0;
+float prevT = 0;
+int prevL=0;
+int prevR=0;
+
 
 int goalT=0;
-int speed=-100;
+int speed=90;
 
 
 task driveTask() {
@@ -68,20 +72,20 @@ task driveTask() {
 
 
           }
+          
+          
 
           TextOut(1, LCD_LINE1, "dT" );
           NumOut(50, LCD_LINE1, deltaT);
           TextOut(1, LCD_LINE2, "motr spd" );
-          NumOut(50, LCD_LINE2, speedL);
-          NumOut(75, LCD_LINE2, speedR);
-          TextOut(1, LCD_LINE3, "position" );
-          NumOut(50, LCD_LINE3, posX);
-          NumOut(75, LCD_LINE3, posY);
+          NumOut(75, LCD_LINE2, speedL);
+          NumOut(50, LCD_LINE2, speedR);
+
           
           OnFwdEx(motorR, speedR, RESET_NONE);
           OnFwdEx(motorL, speedL, RESET_NONE);
 
-    Wait(2);
+    Wait(20);
     
     ClearScreen();
   }
@@ -91,20 +95,36 @@ task driveTask() {
 task positionTask() {
   while (true) {
 
+    int tachR = MotorBlockTachoCount(motorR);
+    int tachL = MotorBlockTachoCount(motorL);
 
-    posT=(MotorBlockTachoCount(OUT_C)-MotorBlockTachoCount(OUT_B))*thetaProportion;
+    posT=(tachR-tachL)*thetaProportion;
     posT%=360;
     posT+=360;
     posT%=360;
+    
+    int distMag=(tachR-prevR)-(tachL-prevL);      // the magnitude of the distance, in degrees of wheel turn.
+    
+    posX-=(distMag*sind(posT));
+    posY+=(distMag*cosd(posT));
 
 
+    TextOut(1, LCD_LINE3, "position" );
+    NumOut(50, LCD_LINE3, posX);
+    NumOut(75, LCD_LINE3, posY);
+    
+    prevR=tachR;
+    prevL=tachL;
 
-    Wait(20);
+    Wait(2);
   }
 }
 
 
 task main() {
+     OffEx(OUT_ABC,RESET_ALL);
+     posT=0;
+     prevT=posT;
      SetSensorUltrasonic(S1);        // set up ultrasonic sensor S1
      //set up ??? sensor S2
      //set up light sensor S3
