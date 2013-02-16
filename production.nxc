@@ -1,6 +1,8 @@
 const short wheelradius=28; //wheel radius, in mm
 const short wheelbase=267; // distance between drive wheels, in mm.
 
+const short motorMin=16; // the minimum amount of power to a motor to make it spin
+
 const float thetaProportion=wheelradius/wheelbase;
 
 
@@ -10,7 +12,7 @@ const float thetaProportion=wheelradius/wheelbase;
 mutex moveMutex;
 float posX = 0;
 float posY = 0;
-float posT = 0;
+int posT = 0;
 
 int goalT=90;
 int speed=100;
@@ -18,43 +20,56 @@ int speed=100;
 
 task driveTask() {
    while (true) {
-      if (posT!=goalT) {
-          int deltaT=(goalT-posT)/2;
-          int speedL=speed-deltaT+abs(deltaT);
-          int speedR=speed+deltaT+abs(deltaT);
+    //  if (posT!=goalT) {
+          int deltaT=(goalT-posT);
+          if (deltaT>180) {
+            deltaT-=360;
+          }
+          deltaT;
+          int speedL=(speed-deltaT);
+          int speedR=(speed+deltaT);
           
-          if(abs(speedL)>100 || abs(speedR)>100) {
-            int maxSpeed=0;
-            if (abs(speedL)>abs(speedR)) {
-               maxSpeed=abs(speedL);
-            } else {
-               maxSpeed=abs(speedR);
-            }
-            speedL/=maxSpeed;
-            speedL*=100;
-            speedR/=maxSpeed;
-            speedR*=100;
-
-
+          if (speedL<0) {
+            speedL=((100-motorMin)/100)*speedL-motorMin;
+          } else if(speedL>0) {
+            speedL=((100-motorMin)/100)*speedL+motorMin;
           }
 
+          if (speedR<0) {
+            speedR=((100-motorMin)/100)*speedR-motorMin;
+          } else if(speedR>0) {
+            speedR=((100-motorMin)/100)*speedR+motorMin;
+          }
+          
+          int maxSpeed=100;
+          if(abs(speedR)>100) {
+               maxSpeed=abs(speedR);
+          } else if(abs(speedL)>100) {
+               maxSpeed=abs(speedL);
+          }
 
+          speedL*=100;
+          speedL/=maxSpeed;
+          speedR*=100;
+          speedR/=maxSpeed;
 
-             NumOut(1, LCD_LINE2, speedL);
-             NumOut(1, LCD_LINE3, speedR);
+          NumOut(1, LCD_LINE1, deltaT);
+          NumOut(1, LCD_LINE2, speedL);
+          NumOut(1, LCD_LINE3, speedR);
+
           
           OnFwdEx(OUT_C, speedR, RESET_NONE);
           OnFwdEx(OUT_B, speedL, RESET_NONE);
-        } else {
-          OnFwdEx(OUT_BC,speed,RESET_NONE);
-        }
+      //  } else {
+      //    OnFwdEx(OUT_BC,speed,RESET_NONE);
+      //  }
           
 
 
-    NumOut(1, LCD_LINE1, posT);
+    //NumOut(1, LCD_LINE1, maxSpeed);
     
 
-    Wait(20);
+    Wait(10);
     
     ClearScreen();
   }
