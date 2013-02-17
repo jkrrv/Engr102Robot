@@ -8,6 +8,7 @@ const byte motorR=OUT_C;
 const byte motorS=OUT_A;
 
 const int sortAngle=70;
+const int cansPerSide=3;
 
 const float thetaProportion=wheelradius/wheelbase;
 //mutex moveMutex;
@@ -89,31 +90,31 @@ task control() {
 
     goToPoint(200,-680,10); //turn
 
-    goToPoint(350,800,20); //pass 3
+    goToPoint(350,800,40); //pass 3
 
     goToPoint(600,1000,10); //turn
 
-    goToPoint(400,-630,20); //pass 4 - toward train
+    goToPoint(400,-580,20); //pass 4 - toward train
 
-    goToPoint(600,-630,10); //turn
+    goToPoint(600,-590,10); //turn
 
     goToPoint(800,1000,20); //pass 5
-//
-//    goToPoint(-1000,1050,10); //turn
-//
-//    goToPoint(-800,-760,20); //pass 6 - toward train side midpoint(ish)
-//
-//    goToPoint(-1000,-760,10); //turn
-//
-//    goToPoint(-1200,1050,20); //pass 7
-//
-//    goToPoint(-1400,1050,10); //turn
-//
-//    goToPoint(-1200,-800,20); //pass 8 - toward train side
-//
-//    goToPoint(-1200,-800,10); //turn
-//
-//    goToPoint(-1400,1050,20); //pass 7
+
+    goToPoint(1000,1050,10); //turn
+
+    goToPoint(800,-600,20); //pass 6 - toward train side midpoint(ish)
+
+    goToPoint(1000,-750,10); //turn
+
+    goToPoint(1200,1050,20); //pass 7
+
+    goToPoint(1400,1050,10); //turn
+
+    goToPoint(1200,-600,20); //pass 8 - toward train side
+
+    goToPoint(1200,-600,10); //turn
+
+    goToPoint(1500,1050,20); //pass 7
 
 
     //goToPoint(-1600,1050,10); //turn
