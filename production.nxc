@@ -21,31 +21,63 @@ int prevL=0;
 int prevR=0;
 
 
-int goalT=180;
+int goalT=0;
 int speed=0;
 
 
 
 void goToPoint(int goalX,int goalY,int margin) {
-  int deltaX=posX-goalX;
-  int deltaY=goalY-posY;
+  bool done=FALSE;
+  int deltaX=9999999;
+  int deltaY=9999999;
+  while((sqrt(pow(deltaX,2)+pow(deltaY,2)))>margin) {
+    deltaX=posX-goalX;
+    deltaY=goalY-posY;
   
-  goalT=atan2d(deltaX,deltaY);
-  
+    goalT=atan2d(deltaX,deltaY);
+    
+    speed = sqrt(pow(deltaX,2)+pow(deltaY,2));
+    if (speed<margin) {
+       done=TRUE;
+    }
+    
+    speed/=3;
+    
+    if (speed>100) {
+       speed=100;
+    } else if (speed<(-100)) {
+       speed=(-100);
+    }
+    
+    TextOut(1, LCD_LINE3, "goal" );
+    NumOut(40, LCD_LINE3, floor(goalX));
+    NumOut(75, LCD_LINE3, floor(goalY));
+    TextOut(1, LCD_LINE4, "goal dist" );
+    NumOut(60, LCD_LINE4, floor(sqrt(pow(deltaX,2)+pow(deltaY,2))));
+    TextOut(1, LCD_LINE5, "goal T" );
+    NumOut(60, LCD_LINE5, floor(goalT));
+    
+    Wait(3);
+  }
+  speed=0;
+  Wait(10);
+  return;
 }
 
 task control() {
 
-    goToPoint(100,100,20);
+    goToPoint(0,500,100);
+    
+    PlayTone(440, 500);
 
-    speed=10;
-    Wait(2000);
-    speed=0;
-    Wait(2000);
-    speed=-20;
-    Wait(2000);
-    speed=0;
-    Wait(2000);
+    //speed=60;
+    //Wait(2000);
+    //speed=0;
+    //Wait(2000);
+    //speed=-20;
+    //Wait(2000);
+    //speed=0;
+    //Wait(2000);
 
 }
 
@@ -97,11 +129,12 @@ task driveTask() {
           
           
 
-          TextOut(1, LCD_LINE1, "dT" );
-          NumOut(50, LCD_LINE1, deltaT);
-          TextOut(1, LCD_LINE2, "motr spd" );
-          NumOut(75, LCD_LINE2, speedL);
-          NumOut(50, LCD_LINE2, speedR);
+          TextOut(1, LCD_LINE1, "         x   y" );
+          
+          
+          TextOut(1, LCD_LINE8, "motr spd" );
+          NumOut(75, LCD_LINE8, speedL);
+          NumOut(40, LCD_LINE8, speedR);
 
           
           OnFwdEx(motorR, speedR, RESET_NONE);
@@ -112,8 +145,6 @@ task driveTask() {
   //  ClearScreen();
   }
 }
-
-float magSum=0;
 
 task positionTask() {
   while (true) {
@@ -134,20 +165,11 @@ task positionTask() {
     posY+=distMag*cosd(posT);
 
 
-    TextOut(1, LCD_LINE3, "position" );
-    NumOut(50, LCD_LINE3, floor(posX));
-    NumOut(75, LCD_LINE3, floor(posY));
+    TextOut(1, LCD_LINE2, "pos" );
+    NumOut(40, LCD_LINE2, floor(posX));
+    NumOut(75, LCD_LINE2, floor(posY));
     
-    magSum+=distMag;
-    NumOut(63, LCD_LINE4, magSum);
-    
-    TextOut(1, LCD_LINE5, "posT  sind  cosd");
-    posT=floor(posT);
-    NumOut(1, LCD_LINE6, posT);
-    NumOut(30, LCD_LINE6, sind(posT));
-    NumOut(67, LCD_LINE6, cosd(posT));
-    
-    Wait(30);
+    Wait(floor(speed));
     
     ClearScreen();
     prevR=tachR;
