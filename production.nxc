@@ -12,7 +12,7 @@ const float thetaProportion=wheelradius/wheelbase;
 // !!!!!!!!!!!  Unless intentionally resetting motor counters, use motorEX commands with flag RESET_NONE
 
 
-mutex moveMutex;
+//mutex moveMutex;
 float posX = 0;
 float posY = 0;
 float posT = 0;
@@ -22,8 +22,20 @@ int prevR=0;
 
 
 int goalT=0;
-int speed=90;
+int speed=0;
 
+task control() {
+  while (true) {
+    speed=10;
+    Wait(2000);
+    speed=0;
+    Wait(2000);
+    speed=-20;
+    Wait(2000);
+    speed=0;
+    Wait(2000);
+  }
+}
 
 task driveTask() {
    while (true) {
@@ -69,8 +81,6 @@ task driveTask() {
             speedL/=maxSpeed;
             speedR*=100;
             speedR/=maxSpeed;
-
-
           }
           
           
@@ -87,10 +97,11 @@ task driveTask() {
 
     Wait(20);
     
-    ClearScreen();
+  //  ClearScreen();
   }
 }
 
+float magSum=0;
 
 task positionTask() {
   while (true) {
@@ -103,20 +114,32 @@ task positionTask() {
     posT+=360;
     posT%=360;
     
-    int distMag=(tachR-prevR)-(tachL-prevL);      // the magnitude of the distance, in degrees of wheel turn.
-    
-    posX-=(distMag*sind(posT));
-    posY+=(distMag*cosd(posT));
+    float distMag=(tachR-prevR)+(tachL-prevL);      // the magnitude of the distance, in degrees of wheel turn.
+    distMag*=21.99114857512;
+    distMag/=90;
+
+    posX-=distMag*sind(posT);
+    posY+=distMag*cosd(posT);
 
 
     TextOut(1, LCD_LINE3, "position" );
-    NumOut(50, LCD_LINE3, posX);
-    NumOut(75, LCD_LINE3, posY);
+    NumOut(50, LCD_LINE3, floor(posX));
+    NumOut(75, LCD_LINE3, floor(posY));
     
+    magSum+=distMag;
+    NumOut(63, LCD_LINE4, magSum);
+    
+    TextOut(1, LCD_LINE5, "posT  sind  cosd");
+    posT=floor(posT);
+    NumOut(1, LCD_LINE6, posT);
+    NumOut(30, LCD_LINE6, sind(posT));
+    NumOut(67, LCD_LINE6, cosd(posT));
+    
+    Wait(30);
+    
+    ClearScreen();
     prevR=tachR;
     prevL=tachL;
-
-    Wait(2);
   }
 }
 
@@ -129,6 +152,6 @@ task main() {
      //set up ??? sensor S2
      //set up light sensor S3
      //set up color sensor S4
-  
-  Precedes(driveTask,positionTask);
+
+  Precedes(driveTask,positionTask,control);
 }
