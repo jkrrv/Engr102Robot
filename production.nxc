@@ -28,13 +28,15 @@ int speed=0;
 
 void goToPoint(int goalX,int goalY,int margin) {
   bool done=FALSE;
-  int deltaX=9999999;
-  int deltaY=9999999;
+  int deltaX=0;
+  int deltaY=100;
   while((sqrt(pow(deltaX,2)+pow(deltaY,2)))>margin) {
     deltaX=posX-goalX;
     deltaY=goalY-posY;
   
     goalT=atan2d(deltaX,deltaY);
+    goalT+=360;
+    goalT%=360;
     
     speed = sqrt(pow(deltaX,2)+pow(deltaY,2));
     if (speed<margin) {
@@ -56,19 +58,62 @@ void goToPoint(int goalX,int goalY,int margin) {
     NumOut(60, LCD_LINE4, floor(sqrt(pow(deltaX,2)+pow(deltaY,2))));
     TextOut(1, LCD_LINE5, "goal T" );
     NumOut(60, LCD_LINE5, floor(goalT));
+    TextOut(1, LCD_LINE6, "pos T" );
+    NumOut(60, LCD_LINE6, floor(posT));
     
-    Wait(3);
+    TextOut(1, LCD_LINE1, "         x   y" );
+    
+    Wait(8);
+    
+    ClearScreen();
   }
   speed=0;
-  Wait(10);
+  PlayTone(620, 200);
+  //Wait(10);
   return;
 }
 
 task control() {
 
-    goToPoint(0,500,100);
+    goToPoint(0,800,20); //pass 1 to goal
     
-    PlayTone(440, 500);
+    goToPoint(-200,800,10); //turn
+
+    goToPoint(0,-800,20); //pass 2 - toward train
+    
+    goToPoint(-200,-800,10); //turn
+    
+    goToPoint(-400,1000,20); //pass 3
+    
+    goToPoint(-600,1000,10); //turn
+    
+    goToPoint(-400,-780,20); //pass 4 - toward train
+    
+    goToPoint(-600,-780,10); //turn
+    
+    goToPoint(-800,1050,20); //pass 5
+    
+    goToPoint(-1000,1050,10); //turn
+    
+    goToPoint(-800,-760,20); //pass 6 - toward train side midpoint(ish)
+    
+    goToPoint(-1000,-760,10); //turn
+    
+    goToPoint(-1200,1050,20); //pass 7
+    
+    goToPoint(-1400,1050,10); //turn
+    
+    goToPoint(-1200,-800,20); //pass 8 - toward train side
+    
+    goToPoint(-1200,-800,10); //turn
+
+    goToPoint(-1400,1050,20); //pass 7
+
+    goToPoint(-1600,1050,10); //turn
+
+    goToPoint(-1400,-800,20); //pass 8 - toward train side
+    
+    
 
     //speed=60;
     //Wait(2000);
@@ -127,11 +172,6 @@ task driveTask() {
             speedR/=maxSpeed;
           }
           
-          
-
-          TextOut(1, LCD_LINE1, "         x   y" );
-          
-          
           TextOut(1, LCD_LINE8, "motr spd" );
           NumOut(75, LCD_LINE8, speedL);
           NumOut(40, LCD_LINE8, speedR);
@@ -171,7 +211,7 @@ task positionTask() {
     
     Wait(floor(speed));
     
-    ClearScreen();
+    //ClearScreen();
     prevR=tachR;
     prevL=tachL;
   }
