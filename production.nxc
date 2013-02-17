@@ -7,12 +7,12 @@ const byte motorL=OUT_B;
 const byte motorR=OUT_C;
 
 const float thetaProportion=wheelradius/wheelbase;
+//mutex moveMutex;
 
 
 // !!!!!!!!!!!  Unless intentionally resetting motor counters, use motorEX commands with flag RESET_NONE
 
 
-//mutex moveMutex;
 float posX = 0;
 float posY = 0;
 float posT = 0;
@@ -21,11 +21,23 @@ int prevL=0;
 int prevR=0;
 
 
-int goalT=0;
+int goalT=180;
 int speed=0;
 
+
+
+void goToPoint(int goalX,int goalY,int margin) {
+  int deltaX=posX-goalX;
+  int deltaY=goalY-posY;
+  
+  goalT=atan2d(deltaX,deltaY);
+  
+}
+
 task control() {
-  while (true) {
+
+    goToPoint(100,100,20);
+
     speed=10;
     Wait(2000);
     speed=0;
@@ -34,7 +46,7 @@ task control() {
     Wait(2000);
     speed=0;
     Wait(2000);
-  }
+
 }
 
 task driveTask() {
