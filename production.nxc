@@ -5,6 +5,9 @@ const short motorMin=18; //minimum speed to make drive motor move;
 
 const byte motorL=OUT_B;
 const byte motorR=OUT_C;
+const byte motorS=OUT_A;
+
+const int sortAngle=70;
 
 const float thetaProportion=wheelradius/wheelbase;
 //mutex moveMutex;
@@ -218,6 +221,28 @@ task positionTask() {
 }
 
 
+task sorter() {
+  while(true) {
+    int color=Random(3);
+    switch (color) {
+      case 1 :
+        //blue
+        RotateMotorEx(motorS,70,sortAngle,0,FALSE,TRUE);
+        Wait(800);
+        RotateMotorEx(motorS,70,-sortAngle,0,FALSE,TRUE);
+        break;
+      case 2 :
+        //yellow
+        RotateMotorEx(motorS,70,-sortAngle,0,FALSE,TRUE);
+        Wait(800);
+        RotateMotorEx(motorS,70,sortAngle,0,FALSE,TRUE);
+        break;
+    }
+    Wait(800);
+  }
+}
+
+
 task main() {
      OffEx(OUT_ABC,RESET_ALL);
      posT=0;
@@ -227,5 +252,5 @@ task main() {
      //set up light sensor S3
      //set up color sensor S4
 
-  Precedes(driveTask,positionTask,control);
+  Precedes(driveTask,positionTask,sorter);
 }
