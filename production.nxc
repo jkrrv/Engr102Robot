@@ -1,5 +1,5 @@
 const short wheelradius=28; //wheel radius, in mm
-const short wheelbase=267; // distance between drive wheels, in mm.
+const short wheelbase=272; // distance between drive wheels, in mm.
 
 const short motorMin=18; //minimum speed to make drive motor move;
 
@@ -78,43 +78,47 @@ void goToPoint(int goalX,int goalY,int margin) {
 
 task control() {
 
-    goToPoint(0,800,20); //pass 1 to goal
-    
-    goToPoint(-200,800,10); //turn
+//goalT=180;
+//speed=0;
 
-    goToPoint(0,-800,20); //pass 2 - toward train
+    goToPoint(0,400,20); //pass 1 to goal
     
-    goToPoint(-200,-800,10); //turn
-    
-    goToPoint(-400,1000,20); //pass 3
-    
-    goToPoint(-600,1000,10); //turn
-    
-    goToPoint(-400,-780,20); //pass 4 - toward train
-    
-    goToPoint(-600,-780,10); //turn
-    
-    goToPoint(-800,1050,20); //pass 5
-    
-    goToPoint(-1000,1050,10); //turn
-    
-    goToPoint(-800,-760,20); //pass 6 - toward train side midpoint(ish)
-    
-    goToPoint(-1000,-760,10); //turn
-    
-    goToPoint(-1200,1050,20); //pass 7
-    
-    goToPoint(-1400,1050,10); //turn
-    
-    goToPoint(-1200,-800,20); //pass 8 - toward train side
-    
-    goToPoint(-1200,-800,10); //turn
+    goToPoint(200,400,10); //turn
 
-    goToPoint(-1400,1050,20); //pass 7
+    goToPoint(0,-680,20); //pass 2 - toward train
 
-    goToPoint(-1600,1050,10); //turn
+    goToPoint(200,-680,10); //turn
 
-    goToPoint(-1400,-800,20); //pass 8 - toward train side
+    goToPoint(350,800,20); //pass 3
+
+    goToPoint(600,1000,10); //turn
+
+    goToPoint(400,-630,20); //pass 4 - toward train
+
+    goToPoint(600,-630,10); //turn
+
+    goToPoint(800,1000,20); //pass 5
+//
+//    goToPoint(-1000,1050,10); //turn
+//
+//    goToPoint(-800,-760,20); //pass 6 - toward train side midpoint(ish)
+//
+//    goToPoint(-1000,-760,10); //turn
+//
+//    goToPoint(-1200,1050,20); //pass 7
+//
+//    goToPoint(-1400,1050,10); //turn
+//
+//    goToPoint(-1200,-800,20); //pass 8 - toward train side
+//
+//    goToPoint(-1200,-800,10); //turn
+//
+//    goToPoint(-1400,1050,20); //pass 7
+
+
+    //goToPoint(-1600,1050,10); //turn
+
+    //goToPoint(-1400,-800,20); //pass 8 - toward train side
     
     
 
@@ -252,5 +256,5 @@ task main() {
      //set up light sensor S3
      //set up color sensor S4
 
-  Precedes(driveTask,positionTask,sorter);
+  Precedes(driveTask,positionTask,sorter,control);
 }
