@@ -12,9 +12,10 @@ const int soundMin=12;
 const int sortAngle=70;
 const int cansPerSide=3;
 
+const int trashGoal[]=
+
 
 const float thetaProportion=wheelradius/wheelbase;
-//mutex moveMutex;
 
 
 // !!!!!!!!!!!  Unless intentionally resetting motor counters, use motorEX commands with flag RESET_NONE
@@ -27,7 +28,7 @@ float prevT = 0;
 int prevL=0;
 int prevR=0;
 
-
+int margin=0;
 int goalX=0;
 int goalY=0;
 int goalT=0;
@@ -35,8 +36,9 @@ int speed=0;
 
 int resumeCourse[][];
 
-void goToPoint(int goalXgtp,int goalYgtp,int margin) {
+void goToPoint(int goalXgtp,int goalYgtp,int marginGtp) {
 
+  margin=marginGtp;
   goalX=goalXgtp;
   goalY=goalYgtp;
 
@@ -222,6 +224,9 @@ task sorter() {
   while(true) {
   
     if (SENSOR_4==1) {  //if touch sensor is touched
+        resumeCourse[ArrayLen(resumeCourse)][0]=goalX;
+        resumeCourse[ArrayLen(resumeCourse)][1]=goalY;
+        resumeCourse[ArrayLen(resumeCourse)][2]=margin;
         if (SENSOR_2 > soundMin) {   //nuclear
 
         } else {  //Trash
