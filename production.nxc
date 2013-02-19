@@ -7,9 +7,10 @@ const byte motorL=OUT_B;
 const byte motorR=OUT_C;
 const byte motorS=OUT_A;
 
-const int soundMin=12;
+const int soundMin=30;
 
 const int sortAngle=70;
+const int sortZero=5;
 const int cansPerSide=3;
 
 const int trashGoal[]={1500,-1050};
@@ -35,6 +36,7 @@ int goalT=0;
 int speed=0;
 
 int resumeCourse[][];
+short storedCans[3][cansPerSide];
 
 mutex driveControlMutex;
 bool externalControl=FALSE;
@@ -206,7 +208,7 @@ task driveTask() {
           NumOut(40, LCD_LINE3, floor(goalX));
           NumOut(75, LCD_LINE3, floor(goalY));
           TextOut(1, LCD_LINE4, "Btn");
-          NumOut(60, LCD_LINE4, SENSOR_3);
+          NumOut(60, LCD_LINE4, SENSOR_2);
           //NumOut(60, LCD_LINE4, floor(sqrt(pow(deltaX,2)+pow(deltaY,2))));
           TextOut(1, LCD_LINE5, "goal T" );
           NumOut(60, LCD_LINE5, floor(goalT));
@@ -259,44 +261,51 @@ task positionTask() {
 
 
 task sorter() {
-  while(FALSE) {
+
+  while(TRUE) {
   
+    //short resumePoint=ArrayLen(resumeCourse);
+//    resumeCourse[resumePoint][0]=goalX;
+//    resumeCourse[resumePoint][1]=goalY;
+//    resumeCourse[resumePoint][2]=margin;
+
     if (SENSOR_4==1) {  //if touch sensor is touched
-        resumeCourse[ArrayLen(resumeCourse)][0]=goalX;
-        resumeCourse[ArrayLen(resumeCourse)][1]=goalY;
-        resumeCourse[ArrayLen(resumeCourse)][2]=margin;
+
+                
+        Wait(500);
+        int depositLocation=0;
+        int canType=0;
         if (SENSOR_2 > soundMin) {   //nuclear
-
+           canType=1;
+           for (int j=1; i<=2, j++) {
+               for (int i=cansPerSide; i>=0; i--) {
+                   if (storedCans[j][i]==0) {
+                      depositLocation=j;
+                   }
+               }
+           }
         } else {  //Trash
-
+           for (int j=2; i>=1, j--) {
+               for (int i=cansPerSide; i>=0; i--) {
+                   if (storedCans[j][i]==0) {
+                      depositLocation=j;
+                   }
+               }
+           }
         }
+        if (depositLocation==1) {
+           RotateMotorEx(motorS,70,(sortZero-sortAngle),0,FALSE,TRUE);
+           Wait(1000);
+        } else if (depositLocation==2) {
+           RotateMotorEx(motorS,70,(sortZero+sortAngle),0,FALSE,TRUE);
+           Wait(1000);
+        }
+        RotateMotorEx(motorS,70,(sortZero),0,FALSE,TRUE);
     }
-
-
-//    int color=Random(3);
-//    switch (color) {
-//      case 1 :
-//        //blue
-//        RotateMotorEx(motorS,70,sortAngle,0,FALSE,TRUE);
-//        Wait(800);
-//        RotateMotorEx(motorS,70,-sortAngle,0,FALSE,TRUE);
-//        break;
-//      case 2 :
-//        //yellow
-//        RotateMotorEx(motorS,70,-sortAngle,0,FALSE,TRUE);
-//        Wait(800);
-//        RotateMotorEx(motorS,70,sortAngle,0,FALSE,TRUE);
-//        break;
-//    }
-//    Wait(800);
-
+    
+    
+    
   }
-}
-
-
-task screen() {
-
-
 }
 
 
