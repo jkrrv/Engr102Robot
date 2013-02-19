@@ -128,21 +128,21 @@ task sweep() {
 //
 //    goToPoint(1500,1050,20); //pass 9
 
-goToPoint(200,200,20);
+//goToPoint(200,200,20);
+//
+//goToPoint(250,550,100);
+//
+//goToPoint(300,900,20);  //drop in goal.
+//
+//deposit();
+//
+//goToPoint(1000,250,10);
+//
+//// goToPoint(1800,0,10);
+//
+//goToPoint(2300,-1050,10);
 
-goToPoint(250,550,100);
-
-goToPoint(300,900,20);  //drop in goal.
-
-deposit();
-
-goToPoint(1000,250,10);
-
-// goToPoint(1800,0,10);
-
-goToPoint(2300,-1050,10);
-
-deposit();
+//deposit();
 
 
 
@@ -205,7 +205,8 @@ task driveTask() {
           TextOut(1, LCD_LINE3, "goal" );
           NumOut(40, LCD_LINE3, floor(goalX));
           NumOut(75, LCD_LINE3, floor(goalY));
-          TextOut(1, LCD_LINE4, "goal dist --" );
+          TextOut(1, LCD_LINE4, "Btn");
+          NumOut(60, LCD_LINE4, SENSOR_3);
           //NumOut(60, LCD_LINE4, floor(sqrt(pow(deltaX,2)+pow(deltaY,2))));
           TextOut(1, LCD_LINE5, "goal T" );
           NumOut(60, LCD_LINE5, floor(goalT));
@@ -260,7 +261,7 @@ task positionTask() {
 task sorter() {
   while(FALSE) {
   
-    if (SENSOR_4==1 && FALSE) {  //if touch sensor is touched
+    if (SENSOR_4==1) {  //if touch sensor is touched
         resumeCourse[ArrayLen(resumeCourse)][0]=goalX;
         resumeCourse[ArrayLen(resumeCourse)][1]=goalY;
         resumeCourse[ArrayLen(resumeCourse)][2]=margin;
@@ -308,5 +309,5 @@ task main() {
      SetSensorLight(S3,false);       //set up light sensor S3
      SetSensor(S4, SENSOR_TOUCH);    //set up touch sensor S4
 
-  Precedes(driveTask,positionTask,sweep);
+  Precedes(driveTask,positionTask,sweep,sorter);
 }
