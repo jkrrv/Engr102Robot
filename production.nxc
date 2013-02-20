@@ -95,68 +95,32 @@ void deposit() {
 
 task sweep() {
 
-while (TRUE) {
+//while (TRUE) {
 
 //goalT=180;
 //speed=0;
 
-//    goToPoint(400,400,20); //pass 1 to goal
 
-//    goToPoint(200,400,10); //turn
+//    goToPoint(0,0,20);
 //
-//    goToPoint(0,-680,50); //pass 2 - toward train
+//    Wait(10000);
 //
-//    goToPoint(200,-680,10); //turn
+//    goToPoint(230,860,50); //N1
 //
-//    goToPoint(350,800,50); //pass 3
+//    Wait(10000);
 //
-//    goToPoint(600,1000,10); //turn
+//    goToPoint(-985,530,50); //N2
 //
-//    goToPoint(400,-580,50); //pass 4 - toward train
+//    Wait(10000);
 //
-//    goToPoint(600,-590,10); //turn
+//    goToPoint(835,-370,50); //N3
 //
-//    goToPoint(800,1000,50); //pass 5
+//    Wait(10000);
 //
-//    goToPoint(1000,1050,10); //turn
-//
-//    goToPoint(800,-600,50); //pass 6 - toward train side midpoint(ish)
-//
-//    goToPoint(1000,-750,10); //turn
-//
-//    goToPoint(1200,1050,50); //pass 7
-//
-//    goToPoint(1400,1050,10); //turn
-//
-//    goToPoint(1150,-600,50); //pass 8 - toward train side
-//
-    goToPoint(0,0,20); //pass 9
+//    goToPoint(0,0,20);
 
 
-    goToPoint(1100,1100,20);
-
-
-////qualifier crap
-//goToPoint(200,200,20);
-//
-//goToPoint(250,550,100);
-//
-//goToPoint(300,900,20);  //drop in goal.
-//
-//deposit();
-
-//
-//goToPoint(1000,250,10);
-//
-//// goToPoint(1800,0,10);
-//
-//goToPoint(2300,-1050,10);
-
-//deposit();
-
-
-
-}
+//}
 
 }
 
@@ -216,7 +180,7 @@ task driveTask() {
           NumOut(40, LCD_LINE3, floor(goalX));
           NumOut(75, LCD_LINE3, floor(goalY));
           TextOut(1, LCD_LINE4, "Sens");
-          NumOut(30, LCD_LINE4, Sensor(S1))
+          NumOut(30, LCD_LINE4, SensorUS(S1))
           NumOut(50, LCD_LINE4, SENSOR_2);
           NumOut(70, LCD_LINE4, SENSOR_3)
           //NumOut(60, LCD_LINE4, floor(sqrt(pow(deltaX,2)+pow(deltaY,2))));
