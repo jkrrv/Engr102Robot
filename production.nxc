@@ -53,7 +53,7 @@ void goToPoint(int goalXgtp,int goalYgtp,int marginGtp) {
   int deltaY=100;
   while((sqrt(pow(deltaX,2)+pow(deltaY,2)))>margin) {
     deltaX=posX-goalX;
-    deltaY=posY-goalY;
+    deltaY=goalY-posY;
   
     goalT=atan2d(deltaX,deltaY);
     goalT+=360;
@@ -70,7 +70,7 @@ void goToPoint(int goalXgtp,int goalYgtp,int marginGtp) {
     }
     
     
-    Wait(8);
+    Wait(10);
     
 
   }
@@ -95,13 +95,23 @@ void deposit() {
 
 task sweep() {
 
-Wait(5000);
+//while (TRUE) {
 
-//while (SensorUS(S1)>20) {
+//goalT=180;
+//speed=0;
 
 
-
-    goToPoint(600,600,20);
+    goToPoint(0,0,20);
+    
+    goToPoint(400,400,20);
+    
+    goToPoint(400,-400,20);
+    
+    goToPoint(-400,-400,20);
+    
+    goToPoint(-400,400,20);
+    
+    goToPoint(0,0,20);
 //
 //    Wait(10000);
 //
@@ -224,7 +234,7 @@ task positionTask() {
     distMag/=90;
 
     posX-=distMag*sind(posT);
-    posY-=distMag*cosd(posT);
+    posY+=distMag*cosd(posT);
     
     light=(0.6*light)+(0.4 * SENSOR_3);
     light=Floor(light);
@@ -292,9 +302,9 @@ task main() {
      Precedes(positionTask);
      if (light>=lightMin) { // on trash side
         posT=180;
-        posX=1200;
+        posX=800;
      } else {               // on nuke side
-        posX=-1200;
+        posX=-800;
         posT=0;
      }
      
