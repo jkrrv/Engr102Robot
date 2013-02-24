@@ -101,17 +101,18 @@ task sweep() {
 //speed=0;
 
 
-    goToPoint(0,0,20);
+    goToPoint(-1160,2000,1);
     
-    goToPoint(400,400,20);
-    
-    goToPoint(400,-400,20);
-    
-    goToPoint(-400,-400,20);
-    
-    goToPoint(-400,400,20);
-    
-    goToPoint(0,0,20);
+//    goToPoint(400,400,20);
+//
+//    goToPoint(400,-400,20);
+//
+//    goToPoint(-400,-400,20);
+//
+//    goToPoint(-400,400,20);
+//
+//    goToPoint(0,0,20);
+
 //
 //    Wait(10000);
 //
@@ -190,9 +191,15 @@ task driveTask() {
           NumOut(40, LCD_LINE3, floor(goalX));
           NumOut(75, LCD_LINE3, floor(goalY));
           TextOut(1, LCD_LINE4, "Sens");
-          NumOut(30, LCD_LINE4, SensorUS(S1))
-          NumOut(50, LCD_LINE4, SENSOR_2);
-          NumOut(70, LCD_LINE4, SENSOR_3)
+
+          
+          int r,g,b;
+          float setpoint=0;
+          ReadSensorHTColor(S2, setpoint, r, g, b);
+          
+          NumOut(30, LCD_LINE4, r);
+          NumOut(50, LCD_LINE4, g);
+          NumOut(70, LCD_LINE4, b);
           //NumOut(60, LCD_LINE4, floor(sqrt(pow(deltaX,2)+pow(deltaY,2))));
           TextOut(1, LCD_LINE5, "goal T" );
           NumOut(60, LCD_LINE5, floor(goalT));
@@ -230,8 +237,10 @@ task positionTask() {
     posT%=360;
     
     float distMag=(tachR-prevR)+(tachL-prevL);      // the magnitude of the distance, in degrees of wheel turn.
-    distMag*=21.99114857512;
-    distMag/=90;
+    distMag*=21.991148575128552669238503682957;     // page 19 (7 pi)
+    distMag*=194;                                   // experimental ratio numerator
+    distMag/=200;                                   // experimental ratio denominator
+    distMag/=90;                                    // page 19
 
     posX-=distMag*sind(posT);
     posY+=distMag*cosd(posT);
@@ -304,7 +313,7 @@ task main() {
         posT=180;
         posX=800;
      } else {               // on nuke side
-        posX=-800;
+        posX=-1160;
         posT=0;
      }
      
@@ -316,7 +325,8 @@ task main() {
      
      prevT=posT;
      SetSensorUltrasonic(S1);        //set up ultrasonic sensor S1
-     SetSensorSound(S2);             //set up sound sensor S2
+     //SetSensorSound(S2);             //set up sound sensor S2
+     SetSensorLowspeed(S2);          //set up color sensor S2
      SetSensorLight(S3,false);       //set up light sensor S3
      SetSensor(S4, SENSOR_TOUCH);    //set up touch sensor S4
 
