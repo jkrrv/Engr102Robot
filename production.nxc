@@ -101,7 +101,7 @@ task sweep() {
 //speed=0;
 
 
-    goToPoint(-1160,2000,1);
+   // goToPoint(-1160,2000,1);
     
 //    goToPoint(400,400,20);
 //
@@ -197,9 +197,10 @@ task driveTask() {
           float setpoint=0;
           ReadSensorHTColor(S2, setpoint, r, g, b);
           
-          NumOut(30, LCD_LINE4, r);
-          NumOut(50, LCD_LINE4, g);
-          NumOut(70, LCD_LINE4, b);
+          NumOut(50, LCD_LINE4, Sensor(S3));
+          //NumOut(30, LCD_LINE4, r);
+         // NumOut(50, LCD_LINE4, g);
+          //NumOut(70, LCD_LINE4, b);
           //NumOut(60, LCD_LINE4, floor(sqrt(pow(deltaX,2)+pow(deltaY,2))));
           TextOut(1, LCD_LINE5, "goal T" );
           NumOut(60, LCD_LINE5, floor(goalT));
