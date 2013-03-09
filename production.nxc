@@ -172,7 +172,15 @@ task sweepTrash() {
 while (TRUE) {
 
 
- goToPoint(-1160,2000,1);
+ goToPoint(835,-240,30);    //T7
+ 
+ goToPoint(380,-80,30);     //T6
+ 
+ goToPoint(-95,-375,30);    //T3
+ 
+ goToPoint(835,-240,100);       //avoid N2 (T7)
+ 
+ goToPoint(-530,-985,30);  //N2
     
 //    goToPoint(400,400,20);
 //
@@ -371,10 +379,10 @@ task main() {
      if (maxB>=lightMin) { // on trash side
         goalT=180;
         prevT=-maxBdir+200;
-        posX=1160;
+        posX=1140;
         start sweepTrash;
      } else {               // on nuke side
-        posX=-1160;
+        posX=-1140;
         prevT=-maxBdir-26.27+300;
         start sweepNuke;
      }
