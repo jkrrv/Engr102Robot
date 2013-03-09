@@ -17,8 +17,8 @@ const short sortAngle=55;
 const short sortZero=5;
 const short cansPerSide=3;
 
-const int trashGoal[]={1500,-1050};
-const int nukeGoal[]={100,1000};
+const int trashGoal[]={1160,-1145};
+const int nukeGoal[]={-1160,1145};
 
 const float thetaProportion=wheelradius/wheelbase;
 
@@ -53,7 +53,7 @@ void deposit() {
      externalControl=TRUE;
      OnFwdEx(motorR, -70, RESET_NONE);
      OnFwdEx(motorL, -70, RESET_NONE);
-     Wait(800);
+     Wait(1500);
      PlayTone(400,400);
      externalControl=FALSE;
      Release(driveControlMutex);
@@ -66,8 +66,10 @@ void goToGoal(int goalXg,int goalYg,int marginG) {
   goalY=goalYg;
 
   int deltaX=0;
-  int deltaY=100;
+  int deltaY=99999;
   while((sqrt(pow(deltaX,2)+pow(deltaY,2)))>margin) {
+  
+
 
     deltaX=posX-goalX;
     deltaY=goalY-posY;
@@ -86,13 +88,19 @@ void goToGoal(int goalXg,int goalYg,int marginG) {
        speed=(-100);
     }
 
+    if (SensorUS(S1)<50) {
+       speed/=3;
+       if (SensorUS(S1)<30) {
+          return;
+       }
+    }
 
     Wait(10);
 
 
   }
   speed=0;
-  PlayTone(1000, 800);
+  PlayTone(1000, 500);
   Wait(10);
   return;
 }
@@ -107,14 +115,14 @@ void goToPoint(int goalXgtp,int goalYgtp,int marginGtp) {
   goalY=goalYgtp;
 
   int deltaX=0;
-  int deltaY=100;
+  int deltaY=10001;
   while((sqrt(pow(deltaX,2)+pow(deltaY,2)))>margin) {
   
     if (colorSensorPresent==FALSE && SENSOR_4==1) {     // practice mode
        int origGoalX=goalX;
        int origGoalY=goalY;
        int origMargin=margin;
-       goToGoal(nukeGoal[0],nukeGoal[1],100);
+       goToGoal(nukeGoal[0],nukeGoal[1],500);
        deposit();
        goalX=origGoalX;
        goalY=origGoalY;
@@ -123,7 +131,7 @@ void goToPoint(int goalXgtp,int goalYgtp,int marginGtp) {
        int origGoalX=goalX;
        int origGoalY=goalY;
        int origMargin=margin;
-       goToGoal(nukeGoal[0],nukeGoal[1],100);
+       goToGoal(nukeGoal[0],nukeGoal[1],500);
        deposit();
        goalX=origGoalX;
        goalY=origGoalY;
@@ -132,12 +140,22 @@ void goToPoint(int goalXgtp,int goalYgtp,int marginGtp) {
        int origGoalX=goalX;
        int origGoalY=goalY;
        int origMargin=margin;
-       goToGoal(trashGoal[0],trashGoal[1],100);
+       goToGoal(trashGoal[0],trashGoal[1],500);
        deposit();
        goalX=origGoalX;
        goalY=origGoalY;
        margin=origMargin;
     }
+    
+    if (SensorUS(S1)<50) {
+       speed/=3;
+       if (SensorUS(S1)<30) {
+          deposit();
+          goalT+=90;
+       }
+    }
+    
+    
     deltaX=posX-goalX;
     deltaY=goalY-posY;
   
@@ -168,19 +186,24 @@ void goToPoint(int goalXgtp,int goalYgtp,int marginGtp) {
 
 
 task sweepTrash() {
-
 while (TRUE) {
-
 
  goToPoint(835,-240,30);    //T7
  
- goToPoint(380,-80,30);     //T6
+ goToPoint(580,-80,30);     //T6
  
- goToPoint(-95,-375,30);    //T3
+ goToPoint(105,-375,30);    //T3
  
- goToPoint(835,-240,100);       //avoid N2 (T7)
+ goToPoint(935,-240,100);       //avoid N2 (T7)
  
- goToPoint(-530,-985,30);  //N2
+ goToPoint(730,-985,30);   //N2
+ 
+ 
+ goToPoint(-800,800,50);
+ 
+ goToPoint(800,800,50);
+  
+ goToPoint(-800,-800,50);
     
 //    goToPoint(400,400,20);
 //
@@ -216,6 +239,15 @@ while (TRUE) {
 
 task sweepNuke() {
 while (TRUE) {
+
+
+ goToPoint(-860,230,50);
+
+ goToPoint(800,800,50);
+
+ goToPoint(-800,-800,50);
+ 
+ goToPoint(800,-800,50);
 
 }
 }
@@ -277,7 +309,9 @@ task driveTask() {
           NumOut(75, LCD_LINE3, floor(goalY));
           TextOut(1, LCD_LINE4, "Sens");
 
-          ReadSensorHTColor(S2, colorSetpoint, colorR, colorG, colorB);
+          if (colorSensorPresent==TRUE) {
+             ReadSensorHTColor(S2, colorSetpoint, colorR, colorG, colorB);
+          }
           
           NumOut(50, LCD_LINE4, Sensor(S3));
           //NumOut(30, LCD_LINE4, r);
@@ -378,11 +412,11 @@ task main() {
      }
      if (maxB>=lightMin) { // on trash side
         goalT=180;
-        prevT=-maxBdir+200;
-        posX=1140;
+        prevT=-maxBdir+198;
+        posX=1100;
         start sweepTrash;
      } else {               // on nuke side
-        posX=-1140;
+        posX=-1100;
         prevT=-maxBdir-26.27+300;
         start sweepNuke;
      }
