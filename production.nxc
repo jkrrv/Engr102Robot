@@ -8,7 +8,10 @@ const byte motorR=OUT_C;
 const byte motorS=OUT_A;
 
 const short soundMin=50;
-const short lightMin=45;
+const short lightMin=45; //45
+
+const bool singleMode=TRUE;
+const bool colorSensorPresent=FALSE;
 
 const short sortAngle=55;
 const short sortZero=5;
@@ -36,12 +39,66 @@ int goalT=0;
 int speed=0;
 
 float light=0;
+int colorR, colorG, colorB;
+float colorSetpoint=0;
 
 int resumeCourse[][];
 short storedCans[][];
 
 mutex driveControlMutex;
 bool externalControl=FALSE;
+
+void deposit() {
+     Acquire(driveControlMutex);
+     externalControl=TRUE;
+     OnFwdEx(motorR, -70, RESET_NONE);
+     OnFwdEx(motorL, -70, RESET_NONE);
+     Wait(800);
+     PlayTone(400,400);
+     externalControl=FALSE;
+     Release(driveControlMutex);
+}
+
+void goToGoal(int goalXg,int goalYg,int marginG) {
+
+  margin=marginG;
+  goalX=goalXg;
+  goalY=goalYg;
+
+  int deltaX=0;
+  int deltaY=100;
+  while((sqrt(pow(deltaX,2)+pow(deltaY,2)))>margin) {
+
+    deltaX=posX-goalX;
+    deltaY=goalY-posY;
+
+    goalT=atan2d(deltaX,deltaY);
+    goalT+=360;
+    goalT%=360;
+
+    speed = sqrt(pow(deltaX,2)+pow(deltaY,2));
+
+    speed/=3;
+
+    if (speed>100) {
+       speed=100;
+    } else if (speed<(-100)) {
+       speed=(-100);
+    }
+
+
+    Wait(10);
+
+
+  }
+  speed=0;
+  PlayTone(1000, 800);
+  Wait(10);
+  return;
+}
+
+
+
 
 void goToPoint(int goalXgtp,int goalYgtp,int marginGtp) {
 
@@ -52,6 +109,35 @@ void goToPoint(int goalXgtp,int goalYgtp,int marginGtp) {
   int deltaX=0;
   int deltaY=100;
   while((sqrt(pow(deltaX,2)+pow(deltaY,2)))>margin) {
+  
+    if (colorSensorPresent==FALSE && SENSOR_4==1) {     // practice mode
+       int origGoalX=goalX;
+       int origGoalY=goalY;
+       int origMargin=margin;
+       goToGoal(nukeGoal[0],nukeGoal[1],100);
+       deposit();
+       goalX=origGoalX;
+       goalY=origGoalY;
+       margin=origMargin;
+    } else if (colorSensorPresent==TRUE && colorR>100 && colorG>50 && colorB<25) {  // nuclear by color
+       int origGoalX=goalX;
+       int origGoalY=goalY;
+       int origMargin=margin;
+       goToGoal(nukeGoal[0],nukeGoal[1],100);
+       deposit();
+       goalX=origGoalX;
+       goalY=origGoalY;
+       margin=origMargin;
+    } else if (colorSensorPresent==TRUE && colorR>5 && colorG>10 && colorB>25) {  // trash by color
+       int origGoalX=goalX;
+       int origGoalY=goalY;
+       int origMargin=margin;
+       goToGoal(trashGoal[0],trashGoal[1],100);
+       deposit();
+       goalX=origGoalX;
+       goalY=origGoalY;
+       margin=origMargin;
+    }
     deltaX=posX-goalX;
     deltaY=goalY-posY;
   
@@ -81,27 +167,12 @@ void goToPoint(int goalXgtp,int goalYgtp,int marginGtp) {
 }
 
 
-void deposit() {
-     Acquire(driveControlMutex);
-     externalControl=TRUE;
-     OnFwdEx(motorR, -70, RESET_NONE);
-     OnFwdEx(motorL, -70, RESET_NONE);
-     Wait(800);
-     PlayTone(400,400);
-     externalControl=FALSE;
-     Release(driveControlMutex);
-}
+task sweepTrash() {
+
+while (TRUE) {
 
 
-task sweep() {
-
-//while (TRUE) {
-
-//goalT=180;
-//speed=0;
-
-
-   // goToPoint(-1160,2000,1);
+ goToPoint(-1160,2000,1);
     
 //    goToPoint(400,400,20);
 //
@@ -131,8 +202,14 @@ task sweep() {
 //    goToPoint(0,0,20);
 
 
-//}
+}
 
+}
+
+task sweepNuke() {
+while (TRUE) {
+
+}
 }
 
 task driveTask() {
@@ -192,10 +269,7 @@ task driveTask() {
           NumOut(75, LCD_LINE3, floor(goalY));
           TextOut(1, LCD_LINE4, "Sens");
 
-          
-          int r,g,b;
-          float setpoint=0;
-          ReadSensorHTColor(S2, setpoint, r, g, b);
+          ReadSensorHTColor(S2, colorSetpoint, colorR, colorG, colorB);
           
           NumOut(50, LCD_LINE4, Sensor(S3));
           //NumOut(30, LCD_LINE4, r);
@@ -204,6 +278,7 @@ task driveTask() {
           //NumOut(60, LCD_LINE4, floor(sqrt(pow(deltaX,2)+pow(deltaY,2))));
           TextOut(1, LCD_LINE5, "goal T" );
           NumOut(60, LCD_LINE5, floor(goalT));
+          NumOut(80, LCD_LINE5, floor(prevT));
           TextOut(1, LCD_LINE6, "pos T" );
           NumOut(60, LCD_LINE6, floor(posT));
           TextOut(1, LCD_LINE8, "motr spd" );
@@ -218,7 +293,7 @@ task driveTask() {
           
    } //end if
 
-    Wait(20);
+    Wait(10);
     
     ClearScreen();
   }
@@ -249,7 +324,7 @@ task positionTask() {
     light=(0.6*light)+(0.4 * SENSOR_3);
     light=Floor(light);
     
-    Wait(20);
+    Wait(8);
     
     prevR=tachR;
     prevL=tachL;
@@ -259,49 +334,8 @@ task positionTask() {
 
 
 task sorter() {
-
   while(TRUE) {
-  
-    //short resumePoint=ArrayLen(resumeCourse);
-//    resumeCourse[resumePoint][0]=goalX;
-//    resumeCourse[resumePoint][1]=goalY;
-//    resumeCourse[resumePoint][2]=margin;
-
-
-    if (SENSOR_4==1) {  //if touch sensor is touched
-    
-        Wait(500);
-        short depositLocation=0;
-        short canType=0;
-        if (SENSOR_2 > soundMin) {   //nuclear
-           canType=1;
-           for (int j=1; j<=2; j++) {
-               for (int i=cansPerSide; i>=0; i--) {
-                   if (TRUE) { // storedCans[j][i]==0) {
-                      depositLocation=j;
-                   }
-               }
-           }
-        } else {  //Trash
-           canType=2;
-           for (int j=2; j>=1; j--) {
-               for (int i=cansPerSide; i>=0; i--) {
-                   if (TRUE) { //storedCans[j][i]==0) {
-                      depositLocation=j;
-                   }
-               }
-           }
-        }
-        if (depositLocation==1) {
-           PosRegSetAngle(motorS,(sortZero-sortAngle));
-           Wait(900);
-        } else if (depositLocation==2) {
-           PosRegSetAngle(motorS,(sortZero+sortAngle));
-           Wait(900);
-        }
-    } else {
-      PosRegSetAngle(motorS,sortZero);
-    }
+    PosRegSetAngle(motorS,sortZero);
   }
 }
 
@@ -309,27 +343,47 @@ task sorter() {
 task main() {
 
      OffEx(OUT_ABC,RESET_ALL);
-     Precedes(positionTask);
-     if (light>=lightMin) { // on trash side
-        posT=180;
-        posX=800;
-     } else {               // on nuke side
-        posX=-1160;
-        posT=0;
-     }
-     
-     
-     ArrayInit(storedCans, 0, cansPerSide); // CPS 0s
-     ArrayInit(storedCans, storedCans, 3); // 3 arrays of that
-
      PosRegEnable(motorS,150,20,20);
-     
-     prevT=posT;
+
      SetSensorUltrasonic(S1);        //set up ultrasonic sensor S1
      //SetSensorSound(S2);             //set up sound sensor S2
      SetSensorLowspeed(S2);          //set up color sensor S2
      SetSensorLight(S3,false);       //set up light sensor S3
      SetSensor(S4, SENSOR_TOUCH);    //set up touch sensor S4
+     
+     start positionTask;
+     start driveTask;
+     
+     int maxB=0;
+     float maxBdir=0;
+     for (int i=0; i<=360; i++) {   //spin to get bearings by max light and max light direction.
+        goalT=i%360;
+        int b=Sensor(S3);
+        if (b>maxB) {
+           maxB=b;
+           maxBdir=posT;
+        } else if (b==maxB) {
+           maxBdir+=posT;
+           maxBdir/=2;
+        }
+        Wait(10);
+     }
+     if (maxB>=lightMin) { // on trash side
+        goalT=180;
+        prevT=-maxBdir+200;
+        posX=1160;
+        start sweepTrash;
+     } else {               // on nuke side
+        posX=-1160;
+        prevT=-maxBdir-26.27+300;
+        start sweepNuke;
+     }
+     PlayTone(620, 200);
+     //prevT=posT;
+     
+     ArrayInit(storedCans, 0, cansPerSide); // CPS 0s
+     ArrayInit(storedCans, storedCans, 3); // 3 arrays of that
 
-  Precedes(driveTask,positionTask,sweep,sorter);
+
+  start sorter;
 }
