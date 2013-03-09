@@ -11,7 +11,7 @@ const short soundMin=50;
 const short lightMin=45; //45
 
 const bool singleMode=TRUE;
-const bool colorSensorPresent=FALSE;
+const bool colorSensorPresent=TRUE;
 
 const short sortAngle=55;
 const short sortZero=5;
@@ -53,6 +53,17 @@ void deposit() {
      externalControl=TRUE;
      OnFwdEx(motorR, -70, RESET_NONE);
      OnFwdEx(motorL, -70, RESET_NONE);
+     Wait(1500);
+     PlayTone(400,400);
+     externalControl=FALSE;
+     Release(driveControlMutex);
+}
+
+void clearWall() {
+     Acquire(driveControlMutex);
+     externalControl=TRUE;
+     OnFwdEx(motorR, -70, RESET_NONE);
+     OnFwdEx(motorL, -100, RESET_NONE);
      Wait(1500);
      PlayTone(400,400);
      externalControl=FALSE;
@@ -150,7 +161,7 @@ void goToPoint(int goalXgtp,int goalYgtp,int marginGtp) {
     if (SensorUS(S1)<50) {
        speed/=3;
        if (SensorUS(S1)<30) {
-          deposit();
+          clearWall();
           goalT+=90;
        }
     }
