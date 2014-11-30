@@ -6,7 +6,7 @@ While I'm rather proud of the system design, it was not as fully
 developed as it should have been.  Most of the competing designs
 involved a robot that would wander about until it found a canister,
 and then would literally follow the light to take it to the goal.  
-My design, on the other hand, applied a coordinate-based navegation 
+My design, on the other hand, applied a coordinate-based navigation 
 system to the field, allowing it to go directly to known canister 
 locations and then take them directly to both goals. 
 
